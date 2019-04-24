@@ -1,8 +1,8 @@
-// Copyright (c) 2013, Lawrence Livermore National Security, LLC. 
-// Produced at the Lawrence Livermore National Laboratory. Written by 
-// Jacob Schroder, Rob Falgout, Tzanio Kolev, Ulrike Yang, Veselin 
+// Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+// Produced at the Lawrence Livermore National Laboratory. Written by
+// Jacob Schroder, Rob Falgout, Tzanio Kolev, Ulrike Yang, Veselin
 // Dobrev, et al. LLNL-CODE-660355. All rights reserved.
-// 
+//
 // This file is part of XBraid. For support, post issues to the XBraid Github page.
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -268,7 +268,7 @@ class BraidBufferStatus
 {
    private:
       braid_BufferStatus bstatus;
-   
+
    public:
       BraidBufferStatus( braid_BufferStatus _bstatus )
       {
@@ -277,7 +277,7 @@ class BraidBufferStatus
 
       void GetMessageType( braid_Int *messagetype_ptr ) { braid_BufferStatusGetMessageType( bstatus, messagetype_ptr); }
       void SetSize( braid_Int size ) { braid_BufferStatusSetSize( bstatus, size ); }
-      ~BraidBufferStatus() {} 
+      ~BraidBufferStatus() {}
 };
 
 // Static functions passed to Braid, with braid_App == BraidApp*
@@ -431,7 +431,7 @@ public:
    }
 
    void SetMaxLevels(braid_Int max_levels) { braid_SetMaxLevels(core, max_levels); }
-   
+
    void SetSkip(braid_Int skip) { braid_SetSkip(core, skip); }
 
    void SetMinCoarse(braid_Int min_coarse) { braid_SetMinCoarse(core, min_coarse); }
@@ -493,6 +493,8 @@ public:
 
    void SetStorage(braid_Int storage) { braid_SetStorage(core, storage); }
 
+   void SetTimeGridPeriodicity(braid_Int periodic_tgrid) { braid_SetTimeGridPeriodicity(core, periodic_tgrid); }
+
    void SetRefine(braid_Int refine) {braid_SetRefine(core, refine);}
 
    void SetMaxRefinements(braid_Int max_refinements) {braid_SetMaxRefinements(core, max_refinements);}
@@ -500,7 +502,7 @@ public:
    void GetNumIter(braid_Int *niter_ptr) { braid_GetNumIter(core, niter_ptr); }
 
    void GetRNorms(braid_Int *nrequest_ptr, braid_Real *rnorms) { braid_GetRNorms(core, nrequest_ptr, rnorms); }
-   
+
    void GetNLevels(braid_Int *nlevels_ptr) { braid_GetNLevels(core, nlevels_ptr); }
 
    void Drive() { braid_Drive(core); }
@@ -592,7 +594,7 @@ public:
          _BraidAppInit, _BraidAppAccess, _BraidAppFree,
          _BraidAppClone, _BraidAppSum, _BraidAppSpatialNorm,
          _BraidAppCoarsen, _BraidAppRefine); }
-   
+
    // Test Functions Coarsen and Refine
    braid_Int TestResidual(BraidApp   *app,
                           MPI_Comm    comm_x,

@@ -1,20 +1,20 @@
 ! BHEADER
-! Copyright (c) 2013, Lawrence Livermore National Security, LLC. 
-! Produced at the Lawrence Livermore National Laboratory. Written by 
-! Jacob Schroder, Rob Falgout, Tzanio Kolev, Ulrike Yang, Veselin 
+! Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+! Produced at the Lawrence Livermore National Laboratory. Written by
+! Jacob Schroder, Rob Falgout, Tzanio Kolev, Ulrike Yang, Veselin
 ! Dobrev, et al. LLNL-CODE-660355. All rights reserved.
-! 
+!
 ! This file is part of XBraid. For support, post issues to the XBraid Github page.
-! 
+!
 ! This program is free software; you can redistribute it and/or modify it under
 ! the terms of the GNU General Public License (as published by the Free Software
 ! Foundation) version 2.1 dated February 1999.
-! 
+!
 ! This program is distributed in the hope that it will be useful, but WITHOUT ANY
 ! WARRANTY; without even the IMPLIED WARRANTY OF MERCHANTABILITY or FITNESS FOR A
 ! PARTICULAR PURPOSE. See the terms and conditions of the GNU General Public
 ! License for more details.
-! 
+!
 ! You should have received a copy of the GNU Lesser General Public License along
 ! with this program; if not, write to the Free Software Foundation, Inc., 59
 ! Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -24,8 +24,8 @@
 ! Example:       ex-01-expanded-f.f90
 !
 ! Interface:     Fortran 90
-! 
-! Requires:      Fortran 90 and C-language support     
+!
+! Requires:      Fortran 90 and C-language support
 !
 ! Compile with:  make ex-01-expanded-f
 !
@@ -33,12 +33,12 @@
 !
 ! Sample run:    mpirun -np 2 ex-01-expanded-f
 !
-! Description:   solve the scalar ODE 
-!                   u' = lambda u, 
+! Description:   solve the scalar ODE
+!                   u' = lambda u,
 !                   with lambda=-1 and y(0) = 1
 !
 !                Same as ex-01-expanded, only implemented in Fortran 90
-!                
+!
 !                When run with the default 10 time steps, the solution is:
 !                $ ./ex-01-expanded-f
 !                $ cat ex-01-expanded-f.out.00*
@@ -62,12 +62,12 @@
 
 ! F90 modules are a convenient way of defining XBraid vectors and app structure
 module braid_types
-   
+
    ! Vector object can contain anything, and be name anything as well
    type my_vector
       double precision val
    end type my_vector
-   
+
    ! App structure can contain anything, and be named anything as well
    type my_app
       integer                       :: comm
@@ -78,7 +78,7 @@ module braid_types
       integer                       :: ntime
       integer                       :: rank
    end type my_app
-   
+
    ! Many Fortran compilers have a sizeof( ) function but its not part of the
    ! language.  So, define variable sizes here.
    integer, parameter :: sizeof_double = 8
@@ -110,7 +110,7 @@ end subroutine replace
 
 ! helper function for my_timegrid, that generates the time-step sizes. Called
 ! before braid_init.  Alternatively, this function could read time step sizes
-! from a file 
+! from a file
 subroutine init_timesteps(app)
 
    use braid_types
@@ -118,10 +118,10 @@ subroutine init_timesteps(app)
    type(my_app)     :: app
    integer          :: ntime, i
    double precision :: dt
-   
+
    ntime = app%ntime
    dt    = (app%tstop - app%tstart) / app%ntime
-   
+
    allocate(app%dt(ntime))
 
    ! example with varying time step size
@@ -143,7 +143,7 @@ end subroutine
 
 
 subroutine braid_Step_F90(app, ustop, fstop, fnotzero, u, pstatus)
-   
+
    ! Braid types
    use braid_types
    implicit none
@@ -155,11 +155,18 @@ subroutine braid_Step_F90(app, ustop, fstop, fnotzero, u, pstatus)
    type(my_app)     :: app
 
    ! Other declarations
-   double precision tstart    ! current time 
+   double precision tstart    ! current time
    double precision tstop     ! evolve to this time
    integer          istart    ! time point index value corresponding to tstop on (global) fine grid
+   integer          level
+   integer          iter
    call braid_step_status_get_tstart_tstop_f90(pstatus, tstart, tstop)
+   call braid_step_status_get_iter_f90(pstatus, iter)
+   call braid_step_status_get_level_f90(pstatus, level)
    call braid_step_status_get_tindex_f90(pstatus, istart)
+
+   write(*,*) "tstart, tstop, istart, u%val, level, iter"
+   write(*,*) tstart, tstop, istart, u%val, level, iter
 
    ! Account for XBraid right-hand-side
    if (fnotzero .eq. 1) then
@@ -176,7 +183,7 @@ end subroutine braid_Step_F90
 
 
 subroutine braid_Residual_F90(app, ustop, r, pstatus)
-   
+
    ! Braid types
    use braid_types
    implicit none
@@ -185,7 +192,7 @@ subroutine braid_Residual_F90(app, ustop, r, pstatus)
    type(my_vector)  :: r
    type(my_app)     :: app
 
-   double precision tstart    ! current time 
+   double precision tstart    ! current time
    double precision tstop     ! evolve to this time
    call braid_step_status_get_tstart_tstop_f90(pstatus, tstart, tstop)
 
@@ -249,15 +256,15 @@ end subroutine
 
 
 subroutine braid_Init_Vec_F90(app, t, u_ptr)
-   
+
    ! Braid types
    use braid_types
    implicit none
    type(my_vector), pointer :: u_ptr
    type(my_app)             :: app
-   
+
    double precision :: t, val
-   
+
    allocate(u_ptr)
    if (t == 0.0) then   ! Initial condition
       u_ptr%val = 1.0
@@ -270,14 +277,14 @@ end subroutine braid_Init_Vec_F90
 
 
 subroutine braid_Clone_F90(app, u, v_ptr)
-   
+
    ! Braid types
    use braid_types
    implicit none
    type(my_vector)          :: u
    type(my_vector), pointer :: v_ptr
    type(my_app)             :: app
-   
+
    allocate(v_ptr)
    v_ptr%val = u%val
 
@@ -285,57 +292,57 @@ end subroutine braid_Clone_F90
 
 
 subroutine braid_Free_F90(app, u)
-   
+
    ! Braid types
    use braid_types
    implicit none
    type(my_app)             :: app
    type(my_vector), pointer :: u
-   
-   deallocate(u) 
+
+   deallocate(u)
 
 end subroutine braid_Free_F90
 
 
 subroutine braid_Sum_F90(app, alpha, x, beta, y)
-   
+
    ! Braid types
    use braid_types
    implicit none
    type(my_vector)          :: x, y
    type(my_app)             :: app
-   
+
    double precision alpha, beta
-   
+
    y%val = alpha*(x%val) + beta*(y%val)
 
 end subroutine braid_Sum_F90
 
 
 subroutine braid_SpatialNorm_F90(app, u, norm_ptr)
-   
+
    ! Braid types
    use braid_types
    implicit none
    type(my_vector)          :: u
    type(my_app)             :: app
-   
+
    double precision norm_ptr
- 
+
    norm_ptr = sqrt( (u%val)*(u%val) )
 
 end subroutine braid_SpatialNorm_F90
 
 
 subroutine braid_Access_F90(app, u, astatus)
-   
+
    ! Braid types
    use braid_types
    implicit none
    integer (kind=8) :: astatus
    type(my_vector)  :: u
    type(my_app)     :: app
-   
+
    integer          :: iter, level, done, ierr, step, numprocs, rank, out_unit
    double precision :: t
    character(len=29):: fname = "ex-01-expanded-f.out"
@@ -344,7 +351,7 @@ subroutine braid_Access_F90(app, u, astatus)
    character(len=3) :: rank_string
    character(len=1) :: dot = "."
    character(len=21) :: val_string
-   
+
    call braid_access_status_get_tild_f90(astatus, t, iter, level, done)
    call braid_access_status_get_tindex_f90(astatus, step)
 
@@ -354,7 +361,7 @@ subroutine braid_Access_F90(app, u, astatus)
    ! Print info to screan
    !print *, "   access print vector", u%val, '  t = ',  t
    !print *, "u->val          = ", u%val
-   
+
    ! Write the scalar solution to file
    write(step_string, "(I4)")  step
    call replace(step_string, ' ', '0', 4)
@@ -372,32 +379,32 @@ end subroutine braid_Access_F90
 
 
 subroutine braid_BufSize_F90(app, size_ptr, bstatus)
-   
+
    ! Braid types
    use braid_types
    implicit none
    integer (kind=8)         :: bstatus
    type(my_app)             :: app
-   
+
    integer size_ptr
-   
+
    size_ptr = sizeof_double
 
 end subroutine braid_BufSize_F90
 
 
 subroutine braid_BufPack_F90(app, u, buffer, bstatus)
-   
+
    ! Braid types
    use braid_types
    implicit none
    integer (kind=8)         :: bstatus
    type(my_vector)          :: u
    type(my_app)             :: app
-   
+
    ! Other declarations
    double precision, dimension(1) :: buffer
-   
+
    ! Pack buffer
    buffer(1) = u%val
    call braid_buffer_status_set_size_f90(bstatus, sizeof_double)
@@ -406,16 +413,16 @@ end subroutine braid_BufPack_F90
 
 
 subroutine braid_BufUnPack_F90(app, buffer, u_ptr, bstatus)
-   
+
    ! Braid types
    use braid_types
    implicit none
    integer (kind=8)         :: bstatus
    type(my_vector), pointer :: u_ptr
    type(my_app)             :: app
-   
+
    double precision, dimension(1) :: buffer
-   
+
    allocate(u_ptr)
    u_ptr%val = buffer(1)
 
@@ -426,13 +433,13 @@ end subroutine braid_BufUnPack_F90
 !--------------------------------------------------------------------------
 
 program ex01_f90
-   
+
    ! Import braid vector and app module
    use braid_types
-   
+
    ! MPI module for newer f90 compilers. For f77 code, comment in the "include 'mpif.h'" below,
    ! and comment out 'use mpi' below
-   !use mpi 
+   !use mpi
 
    implicit none
    type(my_app), pointer :: app
@@ -440,15 +447,15 @@ program ex01_f90
    ! MPI module for older (f77) compilers; for f90 code, comment in the "use mpi" above, and
    ! comment out the "include 'mpif.h'" below
    include 'mpif.h'
-   
+
    ! Declare variables
    double precision t, tol, tstart, tstop
    integer ierr, rc, max_levels, nrelax, nrelax0, cfactor, cfactor0
    integer max_iter, fmg, wrapper_tests, print_help, i, numarg
    integer min_coarse, print_level, access_level, nfmg_Vcyc, res
-   integer mydt, ntime, rank
+   integer mydt, ntime, rank, periodic_tgrid
    character (len = 255) arg
-   
+
    ! Initialize mpi
    call mpi_init(ierr)
    if (ierr .ne. mpi_success) then
@@ -468,7 +475,7 @@ program ex01_f90
    res           = 0
    mydt          = 0
    print_help    = 0
-   
+
    ! The main difference with ex-01-expanded.c is that a few more options are
    ! implemented, to highlight the Fortran 90 interface.  For example, ...
    !
@@ -476,16 +483,17 @@ program ex01_f90
    cfactor0      = -1
    !   This parameter controls the minimum coarse grid size
    min_coarse    = 2
-   !   These two parameters control access and printing of output 
+   !   These two parameters control access and printing of output
    print_level   = 2
    access_level  = 1
    !   This parameter runs XBraid wrapper tests of the XBraid-User interface
    wrapper_tests = 0
-   
-   ! Define time domain: ntime intervals   
-   tstart        = 0.0
-   ntime         = 10
-   tstop         = tstart + ntime/2.0
+
+   ! Define time domain: ntime intervals
+   tstart         = 0.0
+   ntime          = 10
+   tstop          = tstart + ntime/2.0
+   periodic_tgrid = 0
 
    ! Parse command line
    ! GNU, iFort and PGI support the iargc( ) and getarg( ) functions
@@ -498,7 +506,7 @@ program ex01_f90
          read(arg,*) ntime
          tstop     = tstart + ntime/2.0
       else if (arg == '-ml') then
-         i = i+1; call getarg ( i, arg); i = i+1 
+         i = i+1; call getarg ( i, arg); i = i+1
          read(arg,*) max_levels
       else if (arg == '-mc') then
          i = i+1; call getarg ( i, arg); i = i+1
@@ -540,11 +548,14 @@ program ex01_f90
       else if (arg == '-wrapper_tests') then
          i = i+1
          wrapper_tests = 1
+      else if (arg == '-periodic_time_grid') then
+         i = i+1
+         periodic_tgrid = 1
       else if (arg == '-help') then
          i = i+1
-         print *, " " 
+         print *, " "
          print *, "Example 1: Solve a scalar ODE "
-         print *, " " 
+         print *, " "
          print *, "  -ntime <ntime>      : set num time points"
          print *, "  -ml  <max_levels>   : set max levels"
          print *, "  -mc  <min_coarse>   : set min possible coarse level size"
@@ -569,6 +580,7 @@ program ex01_f90
          print *, "                        1 - call access only after completion"
          print *, "                        2 - call access every iteration and level"
          print *, "  -wrapper_tests      : Only run the XBraid wrapper tests"
+         print *, "  -periodic_time_grid : Set time-grids as periodic (default: off)"
          print *, " "
          print_help = 1
          exit
@@ -576,9 +588,9 @@ program ex01_f90
          i = i + 1
       endif
    enddo
-   
+
    if (print_help == 0) then
-       
+
       ! set up app structure
       allocate(app)
       app%mydt      = mydt
@@ -621,19 +633,20 @@ program ex01_f90
             call init_timesteps(app)
             call braid_set_timegrid_f90(braid_core)
          endif
+         call braid_set_timegrid_periodicity_f90(braid_core, periodic_tgrid)
          call braid_set_min_coarse_f90(braid_core, min_coarse)
          call braid_set_access_level_f90( braid_core, access_level)
 
          ! Run simulation, and then clean up
          call braid_drive_f90(braid_core)
          call braid_destroy_f90(braid_core)
-         
+
       endif
-      
+
       ! Clean up
       if (allocated(app%dt)) deallocate(app%dt)
       deallocate(app)
-   
+
    endif
 
    call mpi_finalize(ierr)

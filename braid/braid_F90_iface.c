@@ -1,35 +1,35 @@
 /*BHEADER**********************************************************************
- * Copyright (c) 2013, Lawrence Livermore National Security, LLC. 
- * Produced at the Lawrence Livermore National Laboratory. Written by 
- * Jacob Schroder, Rob Falgout, Tzanio Kolev, Ulrike Yang, Veselin 
+ * Copyright (c) 2013, Lawrence Livermore National Security, LLC.
+ * Produced at the Lawrence Livermore National Laboratory. Written by
+ * Jacob Schroder, Rob Falgout, Tzanio Kolev, Ulrike Yang, Veselin
  * Dobrev, et al. LLNL-CODE-660355. All rights reserved.
- * 
+ *
  * This file is part of XBraid. For support, post issues to the XBraid Github page.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License (as published by the Free Software
  * Foundation) version 2.1 dated February 1999.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the IMPLIED WARRANTY OF MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the terms and conditions of the GNU General Public
  * License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc., 59
  * Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  ***********************************************************************EHEADER*/
- 
+
 
 /** \file _braid_F90_iface.c
  * \brief Define F90 interface for user routines.
  *
- * This file contains definitions to handle type changes between F90 and C, name 
+ * This file contains definitions to handle type changes between F90 and C, name
  * mangling and stubs that wrap the user-written F90 routines.  This
  * layer of wrapping is required so that we can handle any type changes (e.g.,
- * communicators) between F90 and C.  And, we also need to pass function pointers, 
- * which wrap the user-written F90, to XBraid.  Note F90 does not have function 
+ * communicators) between F90 and C.  And, we also need to pass function pointers,
+ * which wrap the user-written F90, to XBraid.  Note F90 does not have function
  * pointers.
  */
 
@@ -44,7 +44,7 @@
 /* Do you have any spots where you need to map types to Fortran? */
 
 /*--------------------------------------------------------------------------
- * Define Fortran types 
+ * Define Fortran types
  *--------------------------------------------------------------------------*/
 typedef braid_Int      braid_F90_Comm;
 typedef braid_Int     *braid_F90_ObjPtr;
@@ -82,7 +82,7 @@ typedef braid_Real     braid_F90_Real;
 /*--------------------------------------------------------------------------
  * Define name mangling macro based on pound-defined braid_FMANGLE
  * braid_FMANGLE == 1 --> append one underscore
- * braid_FMANGLE == 2 --> no change 
+ * braid_FMANGLE == 2 --> no change
  * braid_FMANGLE == 3 --> append two underscore
  * braid_FMANGLE == 4 --> capitalize
  *--------------------------------------------------------------------------*/
@@ -107,10 +107,10 @@ typedef braid_Real     braid_F90_Real;
 
 /*--------------------------------------------------------------------------
  * Define the prototypes for the user-written writtens in F90.
- * Define the XBraid wrappers that call these prototypes. 
- * 
- * These wrappers are needed so that we can have C-style function pointers 
- * to pass to braid_Init, braid_TestInitAccess, and so on. 
+ * Define the XBraid wrappers that call these prototypes.
+ *
+ * These wrappers are needed so that we can have C-style function pointers
+ * to pass to braid_Init, braid_TestInitAccess, and so on.
  *
  * These functions are C calling Fortran.
  *--------------------------------------------------------------------------*/
@@ -166,7 +166,7 @@ braid_Free_F90_Iface(braid_App     app,            /**< user-defined _braid_App 
                      )
 {
    /* Pass the address of u.  Fortran must have a pointer here so that it can deallocate u */
-   braid_F90_Name(braid_free_f90, BRAID_FREE_F90)( braid_PassF90_Obj(    app),  
+   braid_F90_Name(braid_free_f90, BRAID_FREE_F90)( braid_PassF90_Obj(    app),
                                                    braid_PassF90_ObjRef( &u) );
    return 0;
 }
@@ -181,11 +181,11 @@ braid_Free_F90_Iface(braid_App     app,            /**< user-defined _braid_App 
 void braid_F90_Name(braid_clone_f90, BRAID_CLONE_F90)(braid_F90_ObjPtr, braid_F90_ObjPtr,  braid_F90_ObjPtr);
 braid_Int
 braid_Clone_F90_Iface(braid_App      app,          /**< user-defined _braid_App structure */
-                      braid_Vector   u,            /**< vector to clone */ 
+                      braid_Vector   u,            /**< vector to clone */
                       braid_Vector  *v_ptr         /**< output, newly allocated and cloned vector */
                       )
 {
-   braid_F90_Name(braid_clone_f90, BRAID_CLONE_F90)( braid_PassF90_Obj(    app),  
+   braid_F90_Name(braid_clone_f90, BRAID_CLONE_F90)( braid_PassF90_Obj(    app),
                                                      braid_PassF90_Obj(    u),
                                                      braid_PassF90_ObjRef( v_ptr) );
    return 0;
@@ -210,7 +210,7 @@ braid_Sum_F90_Iface(braid_App     app,             /**< user-defined _braid_App 
    /* Temporary scalars so that the calling function's alpha and beta are not overwritten */
    braid_Real alpha2 = alpha;
    braid_Real beta2 = beta;
-   braid_F90_Name(braid_sum_f90, BRAID_SUM_F90)( braid_PassF90_Obj(    app),  
+   braid_F90_Name(braid_sum_f90, BRAID_SUM_F90)( braid_PassF90_Obj(    app),
                                                  braid_PassF90_Real(   alpha2),
                                                  braid_PassF90_Obj(    x),
                                                  braid_PassF90_Real(   beta2),
@@ -229,10 +229,10 @@ void braid_F90_Name(braid_spatialnorm_f90, BRAID_SPATIALNORM_F90)(braid_F90_ObjP
 braid_Int
 braid_SpatialNorm_F90_Iface(braid_App      app,                /**< user-defined _braid_App structure */
                             braid_Vector   u,                  /**< vector to norm */
-                            braid_Real    *norm_ptr            /**< output, norm of braid_Vector (this is a spatial norm) */ 
+                            braid_Real    *norm_ptr            /**< output, norm of braid_Vector (this is a spatial norm) */
                             )
 {
-   braid_F90_Name(braid_spatialnorm_f90, BRAID_SPATIALNORM_F90)( 
+   braid_F90_Name(braid_spatialnorm_f90, BRAID_SPATIALNORM_F90)(
                                   braid_PassF90_Obj(     app),
                                   braid_PassF90_Obj(     u),
                                   braid_PassF90_RealPtr( norm_ptr) );
@@ -252,7 +252,7 @@ braid_Step_F90_Iface(braid_App        app,    /**< user-defined _braid_App struc
                      braid_Vector     ustop,  /**< input, u vector at *tstop* */
                      braid_Vector     fstop,  /**< input, right-hand-side at *tstop* */
                      braid_Vector     u     , /**< output, u vector at *tstop* */
-                     braid_StepStatus status  /**< query this struct for info about (e.g., tstart and tstop), allows for steering (e.g., set rfactor) */ 
+                     braid_StepStatus status  /**< query this struct for info about (e.g., tstart and tstop), allows for steering (e.g., set rfactor) */
                      )
 {
    braid_Int fnotzero = 1;
@@ -260,14 +260,14 @@ braid_Step_F90_Iface(braid_App        app,    /**< user-defined _braid_App struc
    {
       fnotzero = 0;
    }
-   braid_F90_Name(braid_step_f90, BRAID_STEP_F90)( 
+   braid_F90_Name(braid_step_f90, BRAID_STEP_F90)(
                             braid_PassF90_Obj(     app),
                             braid_PassF90_Obj(     ustop),
                             braid_PassF90_Obj(     fstop),
                             braid_PassF90_Int(     fnotzero),
                             braid_PassF90_Obj(     u),
                             braid_PassF90_Obj(     status) );
-   
+
    return 0;
 }
 
@@ -285,7 +285,7 @@ braid_BufSize_F90_Iface(braid_App           app,              /**< user-defined 
                         braid_BufferStatus  status            /**< querry this struct for info on message type */
                         )
 {
-   braid_F90_Name(braid_bufsize_f90, BRAID_BUFSIZE_F90)( 
+   braid_F90_Name(braid_bufsize_f90, BRAID_BUFSIZE_F90)(
                             braid_PassF90_Obj(     app),
                             braid_PassF90_IntPtr(  size_ptr),
                             braid_PassF90_Obj(     status) );
@@ -307,7 +307,7 @@ braid_BufPack_F90_Iface(braid_App      app,            /**< user-defined _braid_
                         braid_BufferStatus status      /**< querry this struct for info on the message type */
                         )
 {
-   braid_F90_Name(braid_bufpack_f90, BRAID_BUFPACK_F90)( 
+   braid_F90_Name(braid_bufpack_f90, BRAID_BUFPACK_F90)(
                             braid_PassF90_Obj(     app),
                             braid_PassF90_Obj(     u),
                             braid_PassF90_VoidPtr( buffer),
@@ -330,7 +330,7 @@ braid_BufUnpack_F90_Iface(braid_App      app,          /**< user-defined _braid_
                           braid_BufferStatus  status   /**< querry this structure for info on the message type */
                           )
 {
-   braid_F90_Name(braid_bufunpack_f90, BRAID_BUFUNPACK_F90)( 
+   braid_F90_Name(braid_bufunpack_f90, BRAID_BUFUNPACK_F90)(
                             braid_PassF90_Obj(     app),
                             braid_PassF90_VoidPtr( buffer),
                             braid_PassF90_ObjRef(  u_ptr),
@@ -349,12 +349,12 @@ braid_BufUnpack_F90_Iface(braid_App      app,          /**< user-defined _braid_
 void braid_F90_Name(braid_residual_f90, BRAID_RESIDUAL_F90)(braid_F90_ObjPtr, braid_F90_ObjPtr, braid_F90_ObjPtr, braid_F90_ObjPtr);
 braid_Int
 braid_Residual_F90_Iface(braid_App               app,        /**< user-defined _braid_App structure */
-                         braid_Vector            ustop,      /**< braid_Vector to compute residual with*/                       
-                         braid_Vector            r,          /**< output, residual vector */   
+                         braid_Vector            ustop,      /**< braid_Vector to compute residual with*/
+                         braid_Vector            r,          /**< output, residual vector */
                          braid_StepStatus        status      /**< query this struct for info about the current status, like tstop and tstart */
                          )
 {
-   braid_F90_Name(braid_residual_f90, BRAID_RESIDUAL_F90)( 
+   braid_F90_Name(braid_residual_f90, BRAID_RESIDUAL_F90)(
                             braid_PassF90_Obj(   app),
                             braid_PassF90_Obj(   ustop),
                             braid_PassF90_Obj(   r),
@@ -383,7 +383,7 @@ braid_TimeGrid_F90_Iface(braid_App               app,       /**< user-defined _b
    /* Temporary scalars so that the calling function's ilower and iupper are not overwritten */
    braid_Int ilower2 = *ilower;
    braid_Int iupper2 = *iupper;
-   braid_F90_Name(braid_timegrid_f90, BRAID_TIMEGRID_F90)( 
+   braid_F90_Name(braid_timegrid_f90, BRAID_TIMEGRID_F90)(
                             braid_PassF90_Obj(      app),
                             braid_PassF90_RealPtr(  ta),
                             braid_PassF90_Int(      ilower2),
@@ -404,12 +404,12 @@ braid_TimeGrid_F90_Iface(braid_App               app,       /**< user-defined _b
 void braid_F90_Name(braid_coarsen_f90, BRAID_COARSEN_F90)(braid_F90_ObjPtr, braid_F90_ObjPtr, braid_F90_ObjPtr, braid_F90_ObjPtr);
 braid_Int
 braid_Coarsen_F90_Iface(braid_App               app,         /**< user-defined _braid_App structure */
-                        braid_Vector            fu,          /**< braid_Vector to refine*/                       
-                        braid_Vector           *cu_ptr,      /**< output, refined vector */   
-                        braid_CoarsenRefStatus  status       /**< query this struct for info about fu and cu (e.g., where in time fu and cu are)  */ 
+                        braid_Vector            fu,          /**< braid_Vector to refine*/
+                        braid_Vector           *cu_ptr,      /**< output, refined vector */
+                        braid_CoarsenRefStatus  status       /**< query this struct for info about fu and cu (e.g., where in time fu and cu are)  */
                         )
 {
-   braid_F90_Name(braid_coarsen_f90, BRAID_COARSEN_F90)( 
+   braid_F90_Name(braid_coarsen_f90, BRAID_COARSEN_F90)(
                             braid_PassF90_Obj(     app),
                             braid_PassF90_Obj(     fu),
                             braid_PassF90_ObjRef(  cu_ptr),
@@ -427,12 +427,12 @@ braid_Coarsen_F90_Iface(braid_App               app,         /**< user-defined _
 void braid_F90_Name(braid_refine_f90, BRAID_REFINE_F90)(braid_F90_ObjPtr, braid_F90_ObjPtr, braid_F90_ObjPtr, braid_F90_ObjPtr);
 braid_Int
 braid_Refine_F90_Iface(braid_App               app,    /**< user-defined _braid_App structure */
-                       braid_Vector            cu,     /**< braid_Vector to refine*/                       
-                       braid_Vector           *fu_ptr, /**< output, refined vector */       
-                       braid_CoarsenRefStatus  status  /**< query this struct for info about fu and cu (e.g., where in time fu and cu are)  */ 
+                       braid_Vector            cu,     /**< braid_Vector to refine*/
+                       braid_Vector           *fu_ptr, /**< output, refined vector */
+                       braid_CoarsenRefStatus  status  /**< query this struct for info about fu and cu (e.g., where in time fu and cu are)  */
                        )
 {
-   braid_F90_Name(braid_refine_f90, BRAID_REFINE_F90)( 
+   braid_F90_Name(braid_refine_f90, BRAID_REFINE_F90)(
                             braid_PassF90_Obj(     app),
                             braid_PassF90_Obj(     cu),
                             braid_PassF90_ObjRef(  fu_ptr),
@@ -444,8 +444,8 @@ braid_Refine_F90_Iface(braid_App               app,    /**< user-defined _braid_
 
 
 /*--------------------------------------------------------------------------
- * Define the Fortran 90 wrappers of XBraid functions.  The user will call 
- * these functions from Fortran to initialize, test and run XBraid. 
+ * Define the Fortran 90 wrappers of XBraid functions.  The user will call
+ * these functions from Fortran to initialize, test and run XBraid.
  *
  * These functions are Fortran calling C.
  *--------------------------------------------------------------------------*/
@@ -462,30 +462,30 @@ braid_F90_Name(braid_test_init_access_f90, BRAID_TEST_INIT_ACCESS_F90)(
                           braid_F90_Real       *t        /**< Time value to test init with (used to initialize the vectors)*/
                           )
 {
-   braid_TestInitAccess( braid_TakeF90_Obj(braid_App, app), 
-                         braid_TakeF90_Comm(          comm_x), 
-                                                      stdout, 
-                         braid_TakeF90_Real(          t), 
-                                                      braid_Init_Vec_F90_Iface, 
-                                                      braid_Access_F90_Iface, 
+   braid_TestInitAccess( braid_TakeF90_Obj(braid_App, app),
+                         braid_TakeF90_Comm(          comm_x),
+                                                      stdout,
+                         braid_TakeF90_Real(          t),
+                                                      braid_Init_Vec_F90_Iface,
+                                                      braid_Access_F90_Iface,
                                                       braid_Free_F90_Iface);
    return 0;
 }
 
 /* Wrap braid_TestClone() */
 braid_Int
-braid_F90_Name(braid_test_clone_f90, BRAID_TEST_CLONE_F90)( 
+braid_F90_Name(braid_test_clone_f90, BRAID_TEST_CLONE_F90)(
                           braid_F90_ObjPtr      app,     /**< User defined App structure */
                           braid_F90_Comm       *comm_x,  /**< Spatial communicator */
                           braid_F90_Real       *t        /**< Time value to test init with (used to initialize the vectors)*/
                           )
-{   
-   braid_TestClone( braid_TakeF90_Obj(braid_App, app), 
-                    braid_TakeF90_Comm(          comm_x), 
-                                                 stdout, 
-                    braid_TakeF90_Real(          t), 
-                                                 braid_Init_Vec_F90_Iface, 
-                                                 braid_Access_F90_Iface, 
+{
+   braid_TestClone( braid_TakeF90_Obj(braid_App, app),
+                    braid_TakeF90_Comm(          comm_x),
+                                                 stdout,
+                    braid_TakeF90_Real(          t),
+                                                 braid_Init_Vec_F90_Iface,
+                                                 braid_Access_F90_Iface,
                                                  braid_Free_F90_Iface,
                                                  braid_Clone_F90_Iface);
    return 0;
@@ -493,18 +493,18 @@ braid_F90_Name(braid_test_clone_f90, BRAID_TEST_CLONE_F90)(
 
 /* Wrap braid_TestSum() */
 braid_Int
-braid_F90_Name(braid_test_sum_f90, BRAID_TEST_SUM_F90)( 
+braid_F90_Name(braid_test_sum_f90, BRAID_TEST_SUM_F90)(
                           braid_F90_ObjPtr      app,     /**< User defined App structure */
                           braid_F90_Comm       *comm_x,  /**< Spatial communicator */
                           braid_F90_Real       *t        /**< Time value to test init with (used to initialize the vectors)*/
                           )
-{   
-   braid_TestSum( braid_TakeF90_Obj(braid_App, app), 
-                  braid_TakeF90_Comm(          comm_x), 
-                                               stdout, 
-                  braid_TakeF90_Real(          t), 
-                                               braid_Init_Vec_F90_Iface, 
-                                               braid_Access_F90_Iface, 
+{
+   braid_TestSum( braid_TakeF90_Obj(braid_App, app),
+                  braid_TakeF90_Comm(          comm_x),
+                                               stdout,
+                  braid_TakeF90_Real(          t),
+                                               braid_Init_Vec_F90_Iface,
+                                               braid_Access_F90_Iface,
                                                braid_Free_F90_Iface,
                                                braid_Clone_F90_Iface,
                                                braid_Sum_F90_Iface);
@@ -513,17 +513,17 @@ braid_F90_Name(braid_test_sum_f90, BRAID_TEST_SUM_F90)(
 
 /* Wrap braid_TestSpatialNorm() */
 braid_Int
-braid_F90_Name(braid_test_spatialnorm_f90, BRAID_TEST_SPATIALNORM_F90)( 
+braid_F90_Name(braid_test_spatialnorm_f90, BRAID_TEST_SPATIALNORM_F90)(
                           braid_F90_ObjPtr      app,     /**< User defined App structure */
                           braid_F90_Comm       *comm_x,  /**< Spatial communicator */
                           braid_F90_Real       *t        /**< Time value to test init with (used to initialize the vectors)*/
                           )
-{   
-   braid_TestSpatialNorm( braid_TakeF90_Obj(braid_App, app), 
-                          braid_TakeF90_Comm(          comm_x), 
-                                                       stdout, 
-                          braid_TakeF90_Real(          t), 
-                                                       braid_Init_Vec_F90_Iface, 
+{
+   braid_TestSpatialNorm( braid_TakeF90_Obj(braid_App, app),
+                          braid_TakeF90_Comm(          comm_x),
+                                                       stdout,
+                          braid_TakeF90_Real(          t),
+                                                       braid_Init_Vec_F90_Iface,
                                                        braid_Free_F90_Iface,
                                                        braid_Clone_F90_Iface,
                                                        braid_Sum_F90_Iface,
@@ -533,17 +533,17 @@ braid_F90_Name(braid_test_spatialnorm_f90, BRAID_TEST_SPATIALNORM_F90)(
 
 /* Wrap braid_TestBuf() */
 braid_Int
-braid_F90_Name(braid_test_buf_f90, BRAID_TEST_BUF_F90)( 
+braid_F90_Name(braid_test_buf_f90, BRAID_TEST_BUF_F90)(
                           braid_F90_ObjPtr      app,     /**< User defined App structure */
                           braid_F90_Comm       *comm_x,  /**< Spatial communicator */
                           braid_F90_Real       *t        /**< Time value to test init with (used to initialize the vectors)*/
                           )
-{   
-   braid_TestBuf( braid_TakeF90_Obj(braid_App, app), 
-                  braid_TakeF90_Comm(          comm_x), 
-                                               stdout, 
-                  braid_TakeF90_Real(          t), 
-                                               braid_Init_Vec_F90_Iface, 
+{
+   braid_TestBuf( braid_TakeF90_Obj(braid_App, app),
+                  braid_TakeF90_Comm(          comm_x),
+                                               stdout,
+                  braid_TakeF90_Real(          t),
+                                               braid_Init_Vec_F90_Iface,
                                                braid_Free_F90_Iface,
                                                braid_Sum_F90_Iface,
                                                braid_SpatialNorm_F90_Iface,
@@ -558,22 +558,22 @@ braid_F90_Name(braid_test_buf_f90, BRAID_TEST_BUF_F90)(
 
 /* Wrap braid_TestCoarsenRefine() */
 braid_Int
-braid_F90_Name(braid_test_coarsen_refine_f90, BRAID_TEST_COARSEN_REFINE_F90)( 
+braid_F90_Name(braid_test_coarsen_refine_f90, BRAID_TEST_COARSEN_REFINE_F90)(
                           braid_F90_ObjPtr      app,     /**< User defined App structure */
                           braid_F90_Comm       *comm_x,  /**< Spatial communicator */
                           braid_F90_Real       *t,       /**< Time value to initialize test vectors */
                           braid_F90_Real       *fdt,     /**< Fine time step value that you spatially coarsen from */
                           braid_F90_Real       *cdt      /**< Coarse time step value that you coarsen to */
                           )
-{   
-   braid_TestCoarsenRefine( braid_TakeF90_Obj(braid_App, app), 
-                            braid_TakeF90_Comm(          comm_x), 
-                                                         stdout, 
-                            braid_TakeF90_Real(          t), 
-                            braid_TakeF90_Real(          fdt), 
-                            braid_TakeF90_Real(          cdt), 
-                                                         braid_Init_Vec_F90_Iface, 
-                                                         braid_Access_F90_Iface, 
+{
+   braid_TestCoarsenRefine( braid_TakeF90_Obj(braid_App, app),
+                            braid_TakeF90_Comm(          comm_x),
+                                                         stdout,
+                            braid_TakeF90_Real(          t),
+                            braid_TakeF90_Real(          fdt),
+                            braid_TakeF90_Real(          cdt),
+                                                         braid_Init_Vec_F90_Iface,
+                                                         braid_Access_F90_Iface,
                                                          braid_Free_F90_Iface,
                                                          braid_Clone_F90_Iface,
                                                          braid_Sum_F90_Iface,
@@ -587,14 +587,14 @@ braid_F90_Name(braid_test_coarsen_refine_f90, BRAID_TEST_COARSEN_REFINE_F90)(
 
 /* Wrap braid_TestAll() */
 braid_Int
-braid_F90_Name(braid_test_all_f90, BRAID_TEST_ALL_F90)( 
+braid_F90_Name(braid_test_all_f90, BRAID_TEST_ALL_F90)(
                           braid_F90_ObjPtr      app,     /**< User defined App structure */
                           braid_F90_Comm       *comm_x,  /**< Spatial communicator */
                           braid_F90_Real       *t,       /**< Time value to initialize test vectors */
                           braid_F90_Real       *fdt,     /**< Fine time step value that you spatially coarsen from */
                           braid_F90_Real       *cdt      /**< Coarse time step value that you coarsen to */
                           )
-{   
+{
 
 
 #if (braid_Fortran_SpatialCoarsen != 0)
@@ -614,13 +614,13 @@ braid_F90_Name(braid_test_all_f90, BRAID_TEST_ALL_F90)(
 #endif
 
 
-   braid_TestAll( braid_TakeF90_Obj(braid_App, app), 
-                  braid_TakeF90_Comm(          comm_x), 
-                                               stdout, 
-                  braid_TakeF90_Real(          t), 
-                  braid_TakeF90_Real(          fdt), 
-                  braid_TakeF90_Real(          cdt), 
-                                               braid_Init_Vec_F90_Iface, 
+   braid_TestAll( braid_TakeF90_Obj(braid_App, app),
+                  braid_TakeF90_Comm(          comm_x),
+                                               stdout,
+                  braid_TakeF90_Real(          t),
+                  braid_TakeF90_Real(          fdt),
+                  braid_TakeF90_Real(          cdt),
+                                               braid_Init_Vec_F90_Iface,
                                                braid_Free_F90_Iface,
                                                braid_Clone_F90_Iface,
                                                braid_Sum_F90_Iface,
@@ -765,7 +765,7 @@ braid_F90_Name(braid_step_status_get_rnorms_f90, BRAID_STEP_STATUS_GET_RNORMS_F9
 braid_Int
 braid_F90_Name(braid_step_status_get_old_fine_tolx_f90, BRAID_STEP_STATUS_GET_OLD_FINE_TOLX_F90)(
                               braid_F90_ObjPtr    status,              /**< structure containing current simulation info */
-                              braid_F90_Real      *old_fine_tolx_ptr   /**< output, previous *old_fine_tolx*, set through *braid_StepStatusSetOldFineTolx* */                              
+                              braid_F90_Real      *old_fine_tolx_ptr   /**< output, previous *old_fine_tolx*, set through *braid_StepStatusSetOldFineTolx* */
                               )
 {
    braid_StepStatusGetOldFineTolx( braid_TakeF90_Obj(braid_StepStatus, status),
@@ -777,7 +777,7 @@ braid_F90_Name(braid_step_status_get_old_fine_tolx_f90, BRAID_STEP_STATUS_GET_OL
 braid_Int
 braid_F90_Name(braid_step_status_set_old_fine_tolx_f90, BRAID_STEP_STATUS_SET_OLD_FINE_TOLX_F90)(
                               braid_F90_ObjPtr    status,              /**< structure containing current simulation info */
-                              braid_F90_Real      *old_fine_tolx       /**< input, the last used fine_tolx */                              
+                              braid_F90_Real      *old_fine_tolx       /**< input, the last used fine_tolx */
                               )
 {
    braid_StepStatusSetOldFineTolx( braid_TakeF90_Obj(braid_StepStatus, status),
@@ -801,7 +801,7 @@ braid_F90_Name(braid_step_status_set_tight_fine_tolx_f90, BRAID_STEP_STATUS_SET_
 braid_Int
 braid_F90_Name(braid_buffer_status_get_message_type_f90, BRAID_BUFFER_STATUS_GET_MESSAGE_TYPE_F90)(
                               braid_F90_ObjPtr     status,            /**< structure containing current simulation info */
-                              braid_F90_Int        *messagetype_ptr   /**< output, type of message, 0: for Step(), 1: for load balancing */  
+                              braid_F90_Int        *messagetype_ptr   /**< output, type of message, 0: for Step(), 1: for load balancing */
                               )
 {
    braid_BufferStatusGetMessageType(braid_TakeF90_Obj( braid_BufferStatus, status),
@@ -834,7 +834,7 @@ braid_F90_Name(braid_init_f90, BRAID_INIT_F90)(
            braid_F90_Real        *tstop,       /**< End time*/
            braid_F90_Int         *ntime,       /**< Initial number of temporal grid values*/
            braid_F90_ObjPtr       app,         /**< User-defined _braid_App structure */
-           braid_F90_ObjPtr      *core_ptr     /**< Pointer to braid_Core (_braid_Core) struct*/   
+           braid_F90_ObjPtr      *core_ptr     /**< Pointer to braid_Core (_braid_Core) struct*/
            )
 {
    braid_Init(braid_TakeF90_Comm(              comm_world),
@@ -843,8 +843,8 @@ braid_F90_Name(braid_init_f90, BRAID_INIT_F90)(
               braid_TakeF90_Real(              tstop),
               braid_TakeF90_Int(               ntime),
               braid_TakeF90_Obj(braid_App,     app),
-              braid_Step_F90_Iface, 
-              braid_Init_Vec_F90_Iface, 
+              braid_Step_F90_Iface,
+              braid_Init_Vec_F90_Iface,
               braid_Clone_F90_Iface,
               braid_Free_F90_Iface,
               braid_Sum_F90_Iface,
@@ -1047,6 +1047,18 @@ braid_F90_Name(braid_set_storage_f90, BRAID_SET_STORAGE_F90)(
    return 0;
 }
 
+/* braid_SetTimeGridPeriodicity( ) */
+braid_Int
+braid_F90_Name(braid_set_timegrid_periodicity_f90, BRAID_SET_TIMEGRID_PERIODICITY_F90)(
+                   braid_F90_ObjPtr  *core,           /**< braid_Core (_braid_Core) struct*/
+                   braid_F90_Int     *periodic_tgrid  /**< time grid is periodic (1) or non-periodic (0) */
+                   )
+{
+   braid_SetTimeGridPeriodicity(braid_TakeF90_ObjDeref(braid_Core,  core) ,
+                                braid_TakeF90_Int(                  periodic_tgrid) );
+   return 0;
+}
+
 #if (braid_Fortran_Residual == 1)
 
 /* braid_SetResidual( ) */
@@ -1226,7 +1238,7 @@ braid_F90_Name(braid_get_spatial_accuracy_f90, BRAID_GET_SPATIAL_ACCURACY_F90)(
                braid_F90_Real      *tol_ptr       /**< output, holds the computed spatial solve stopping tol */
                )
 {
-   braid_GetSpatialAccuracy(braid_TakeF90_Obj(braid_StepStatus, status),   
+   braid_GetSpatialAccuracy(braid_TakeF90_Obj(braid_StepStatus, status),
                             braid_TakeF90_Real(                 loose_tol),
                             braid_TakeF90_Real(                 tight_tol),
                             braid_TakeF90_RealPtr(              tol_ptr));
